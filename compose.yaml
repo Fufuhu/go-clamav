@@ -1,0 +1,21 @@
+services:
+  clamd:
+    build:
+      context: clamd
+      dockerfile: Dockerfile
+    ports:
+      - "3310:3310"
+    volumes:
+      - signatures:/var/lib/clamav
+  freshclam:
+    build:
+      context: freshclam
+      dockerfile: Dockerfile
+    # environment:
+    #   - FRESHCLAM_INTERVAL=60
+    volumes:
+      - signatures:/var/lib/clamav
+    depends_on:
+      - clamd
+volumes:
+  signatures:
