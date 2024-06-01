@@ -38,6 +38,15 @@ services:
       mc alias set minioio http://minio:9000 minio miniominio;
       mc mb --ignore-existing minioio/test;
       exit 0;"
+  elasticmq:
+    image: softwaremill/elasticmq
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - type: bind
+        source: ./elasticmq/conf.d/custom.conf
+        target: /opt/elasticmq.conf
 volumes:
   signatures:
   minio-data:
