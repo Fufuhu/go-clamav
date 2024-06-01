@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// TestGetConfig GetConfig関数にてQUEUE_URLの環境変数の値がConfiguration構造体に格納されていることを確認するテスト
 func TestGetConfig(t *testing.T) {
 	expected := "test"
 	err := os.Setenv("QUEUE_URL", expected)
