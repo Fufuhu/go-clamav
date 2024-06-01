@@ -1,7 +1,7 @@
 services:
   clamd:
     build:
-      context: clamd
+      context: clamav
       dockerfile: Dockerfile
     ports:
       - "3310:3310"
