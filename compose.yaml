@@ -17,5 +17,27 @@ services:
       - signatures:/var/lib/clamav
     depends_on:
       - clamd
+  minio:
+    image: minio/minio
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=miniominio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio:/opt
+      - minio-data:/data
+    command: ["server", "/data", "--console-address", ":9001"]
+  minio-client:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set minioio http://minio:9000 minio miniominio;
+      mc mb --ignore-existing minioio/test;
+      exit 0;"
 volumes:
   signatures:
+  minio-data:
