@@ -34,14 +34,8 @@ func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error)
 
 	svc := awsSqs.NewFromConfig(cfg)
 
-	receiveMessageInput := &awsSqs.ReceiveMessageInput{
-		QueueUrl:            aws.String(c.conf.QueueURL),
-		MaxNumberOfMessages: c.conf.MaxNumberOfMessages,
-		WaitTimeSeconds:     c.conf.WaitTimeSeconds,
-	}
-
 	for {
-		s3Objects, err := c.ReceiveMessages(ctx, receiveMessageInput, svc)
+		s3Objects, err := c.ReceiveMessages(ctx, svc)
 		if err != nil {
 			logger.Warn("SQSのメッセージ取得に失敗しました")
 			logger.Error(err.Error())
@@ -64,22 +58,23 @@ type S3Event struct {
 			Bucket struct {
 				Name string `json:"name"`
 			} `json:"bucket"`
+			Object struct {
+				Key string `json:"key"`
+			} `json:"object"`
 		} `json:"s3"`
-		Object struct {
-			Key string `json:"key"`
-		} `json:"object"`
 	} `json:"Records"`
 }
 
 // ReceiveMessages キューからメッセージを取得する
-func (c *Client) ReceiveMessages(ctx context.Context, receiveMessageInput *awsSqs.ReceiveMessageInput, svc *awsSqs.Client) ([]clients.S3Object, error) {
+func (c *Client) ReceiveMessages(ctx context.Context, svc *awsSqs.Client) ([]clients.S3Object, error) {
 	logger := logging.GetLogger()
-	defer func(logger *zap.Logger) {
-		err := logger.Sync()
-		if err != nil {
-			panic(err)
-		}
-	}(logger)
+	defer logger.Sync()
+
+	receiveMessageInput := &awsSqs.ReceiveMessageInput{
+		QueueUrl:            aws.String(c.conf.QueueURL),
+		MaxNumberOfMessages: c.conf.MaxNumberOfMessages,
+		WaitTimeSeconds:     c.conf.WaitTimeSeconds,
+	}
 
 	result, err := svc.ReceiveMessage(ctx, receiveMessageInput)
 
@@ -89,6 +84,7 @@ func (c *Client) ReceiveMessages(ctx context.Context, receiveMessageInput *awsSq
 		return []clients.S3Object{}, err
 	}
 
+	var s3Objects []clients.S3Object
 	for _, message := range result.Messages {
 		logger.Info("SQSメッセージを処理中です",
 			zap.String("MessageID", *message.MessageId),
@@ -103,16 +99,28 @@ func (c *Client) ReceiveMessages(ctx context.Context, receiveMessageInput *awsSq
 		}
 
 		// eventのRecordsからイベント情報を取り出してQueueMessageのフォーマットにして格納する
-		var s3Objects []clients.S3Object
 		for _, record := range event.Records {
 			s3Objects = append(s3Objects, clients.S3Object{
 				Bucket: record.S3.Bucket.Name,
-				Key:    record.Object.Key,
+				Key:    record.S3.Object.Key,
 			})
+		}
+
+		deleteMessageInput := &awsSqs.DeleteMessageInput{
+			QueueUrl:      aws.String(c.conf.QueueURL),
+			ReceiptHandle: message.ReceiptHandle,
+		}
+
+		_, err = svc.DeleteMessage(ctx, deleteMessageInput)
+		if err != nil {
+			logger.Warn("SQSメッセージの削除に失敗しました",
+				zap.String("MessageID", *message.MessageId),
+				zap.String("ReceiptHandle", *message.ReceiptHandle))
+			logger.Error(err.Error())
 		}
 	}
 
-	return nil, nil
+	return s3Objects, nil
 }
 
 func NewClient(conf config.Configuration) *Client {

@@ -7,6 +7,7 @@ type Configuration struct {
 	Region              string `envconfig:"REGION" required:"true" default:"ap-northeast-1"`
 	MaxNumberOfMessages int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
 	WaitTimeSeconds     int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
+	BaseUrl             string `envconfig:"BASE_URL" required:"false" default:""`
 }
 
 var conf *Configuration
