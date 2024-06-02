@@ -3,10 +3,17 @@ package config
 import "github.com/kelseyhightower/envconfig"
 
 type Configuration struct {
-	QueueURL string `envconfig:"QUEUE_URL" required:"true"`
+	QueueURL            string `envconfig:"QUEUE_URL" required:"true"`
+	Region              string `envconfig:"REGION" required:"true" default:"ap-northeast-1"`
+	MaxNumberOfMessages int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
+	WaitTimeSeconds     int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
 }
 
 var conf *Configuration
+
+const DefaultRegion = "ap-northeast-1"
+const DefaultMaxNumberOfMessages = int32(1)
+const DefaultWaitTimeSeconds = int32(20)
 
 // Initialize Initialize関数はconf変数を初期化する
 // 環境変数を変更したあとにプロセスを再起動することなしに設定を再取得したい場合などに利用する
