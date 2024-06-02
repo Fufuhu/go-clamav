@@ -15,6 +15,9 @@ func TestGetConfig(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, expected, config.QueueURL)
+	assert.Equal(t, DefaultRegion, config.Region)
+	assert.Equal(t, DefaultMaxNumberOfMessages, config.MaxNumberOfMessages)
+	assert.Equal(t, DefaultWaitTimeSeconds, config.WaitTimeSeconds)
 }
 
 // TestInitialize Initialize関数にてconf変数がnilになることを確認するテスト
