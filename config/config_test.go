@@ -16,3 +16,9 @@ func TestGetConfig(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expected, config.QueueURL)
 }
+
+// TestInitialize Initialize関数にてconf変数がnilになることを確認するテスト
+func TestInitialize(t *testing.T) {
+	Initialize()
+	assert.Nil(t, conf)
+}
