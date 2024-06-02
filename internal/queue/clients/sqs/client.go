@@ -13,7 +13,8 @@ import (
 )
 
 type Client struct {
-	conf config.Configuration
+	conf    config.Configuration
+	service *awsSqs.Client
 }
 
 // Poll SQSにポーリングする
@@ -26,16 +27,8 @@ func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error)
 		}
 	}(logger)
 
-	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(c.conf.Region))
-	if err != nil {
-		logger.Error(err.Error())
-		return err
-	}
-
-	svc := awsSqs.NewFromConfig(cfg)
-
 	for {
-		s3Objects, err := c.ReceiveMessages(ctx, svc)
+		s3Objects, err := c.ReceiveMessages(ctx)
 		if err != nil {
 			logger.Warn("SQSのメッセージ取得に失敗しました")
 			logger.Error(err.Error())
@@ -66,7 +59,7 @@ type S3Event struct {
 }
 
 // ReceiveMessages キューからメッセージを取得する
-func (c *Client) ReceiveMessages(ctx context.Context, svc *awsSqs.Client) ([]clients.S3Object, error) {
+func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.S3Object, error) {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
@@ -76,7 +69,7 @@ func (c *Client) ReceiveMessages(ctx context.Context, svc *awsSqs.Client) ([]cli
 		WaitTimeSeconds:     c.conf.WaitTimeSeconds,
 	}
 
-	result, err := svc.ReceiveMessage(ctx, receiveMessageInput)
+	result, err := c.service.ReceiveMessage(ctx, receiveMessageInput)
 
 	if err != nil {
 		logger.Warn("SQSキューからのメッセージの取得に失敗しました")
@@ -111,20 +104,61 @@ func (c *Client) ReceiveMessages(ctx context.Context, svc *awsSqs.Client) ([]cli
 			ReceiptHandle: message.ReceiptHandle,
 		}
 
-		_, err = svc.DeleteMessage(ctx, deleteMessageInput)
+		_, err = c.service.DeleteMessage(ctx, deleteMessageInput)
 		if err != nil {
 			logger.Warn("SQSメッセージの削除に失敗しました",
 				zap.String("MessageID", *message.MessageId),
 				zap.String("ReceiptHandle", *message.ReceiptHandle))
 			logger.Error(err.Error())
+			continue
 		}
+		logger.Info("SQSメッセージを削除しました",
+			zap.String("MessageID", *message.MessageId),
+			zap.String("ReceiptHandle", *message.ReceiptHandle))
 	}
 
 	return s3Objects, nil
 }
 
-func NewClient(conf config.Configuration) *Client {
-	return &Client{
-		conf: conf,
+// SendMessage メッセージを送信する。送信したメセージIDとエラーを返す
+func (c *Client) SendMessage(ctx context.Context, message string) (*string, error) {
+	logger := logging.GetLogger()
+	defer logger.Sync()
+
+	sendMessageInput := &awsSqs.SendMessageInput{
+		QueueUrl:    aws.String(c.conf.QueueURL),
+		MessageBody: aws.String(message),
 	}
+
+	sendMessageOutput, err := c.service.SendMessage(ctx, sendMessageInput)
+	if err != nil {
+		logger.Warn("SQSメッセージの送信に失敗しました")
+		logger.Error(err.Error())
+		return nil, err
+	}
+	logger.Info("SQSメッセージを送信しました",
+		zap.String("MessageID", *sendMessageOutput.MessageId))
+
+	return sendMessageOutput.MessageId, err
+}
+
+func NewClient(conf config.Configuration, ctx context.Context) (*Client, error) {
+	logger := logging.GetLogger()
+	defer logger.Sync()
+
+	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(conf.Region))
+	if err != nil {
+		logger.Warn("AWSクライアントの設定作成に失敗しました")
+		logger.Error(err.Error())
+		return nil, err
+	}
+	if conf.BaseUrl != "" {
+		cfg.BaseEndpoint = aws.String(conf.BaseUrl)
+	}
+	svc := awsSqs.NewFromConfig(cfg)
+
+	return &Client{
+		conf:    conf,
+		service: svc,
+	}, nil
 }
