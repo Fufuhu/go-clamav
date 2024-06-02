@@ -3,10 +3,6 @@ package sqs
 import (
 	"context"
 	"github.com/Fufuhu/go-clamav/config"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	awsSqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,8 +14,10 @@ func TestNewClient(t *testing.T) {
 		MaxNumberOfMessages: 10,
 		WaitTimeSeconds:     20,
 	}
-	client := NewClient(conf)
+	ctx := context.Background()
+	client, err := NewClient(conf, ctx)
 	assert.NotNil(t, client)
+	assert.Nil(t, err)
 }
 
 func TestClient_ReceiveMessages(t *testing.T) {
@@ -30,23 +28,11 @@ func TestClient_ReceiveMessages(t *testing.T) {
 		WaitTimeSeconds:     20,
 		BaseUrl:             "http://localhost:9324",
 	}
-	client := NewClient(conf)
-	assert.NotNil(t, client)
-
 	ctx := context.Background()
-	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(conf.Region))
-
-	// TODO: BaseEndpointをconfigに設定するようにして指定がない場合は、configに設定しないようにする
-	if conf.BaseUrl != "" {
-		cfg.BaseEndpoint = aws.String(conf.BaseUrl)
-	}
+	client, err := NewClient(conf, ctx)
 	assert.Nil(t, err)
-
-	svc := awsSqs.NewFromConfig(cfg)
-
-	_, err = svc.SendMessage(ctx, &sqs.SendMessageInput{
-		QueueUrl: aws.String("http://localhost:9324/000000000000/queue1"),
-		MessageBody: aws.String(`{
+	assert.NotNil(t, client)
+	message := `{
   "Records": [
     {
       "eventVersion": "2.1",
@@ -83,12 +69,12 @@ func TestClient_ReceiveMessages(t *testing.T) {
       }
     }
   ]
-}
-`),
-	})
+}`
+	sendMessage, err := client.SendMessage(ctx, message)
 	assert.Nil(t, err)
+	assert.NotNil(t, sendMessage)
 
-	messages, err := client.ReceiveMessages(ctx, svc)
+	messages, err := client.ReceiveMessages(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(messages))
 	assert.Equal(t, "hane.jpg", messages[0].Key)
