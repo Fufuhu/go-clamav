@@ -8,6 +8,7 @@ type Configuration struct {
 	MaxNumberOfMessages int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
 	WaitTimeSeconds     int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
 	BaseUrl             string `envconfig:"BASE_URL" required:"false" default:""`
+	S3BaseUrl           string `envconfig:"S3_BASE_URL" required:"false" default:""`
 }
 
 var conf *Configuration
