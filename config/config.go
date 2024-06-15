@@ -5,14 +5,15 @@ import (
 )
 
 type Configuration struct {
-	QueueURL            string `envconfig:"QUEUE_URL" required:"true"`
-	Region              string `envconfig:"REGION" required:"true" default:"ap-northeast-1"`
-	MaxNumberOfMessages int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
-	WaitTimeSeconds     int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
-	BaseUrl             string `envconfig:"BASE_URL" required:"false" default:""`
-	S3BaseUrl           string `envconfig:"S3_BASE_URL" required:"false" default:""`
-	DynamoDBBaseUrl     string `envconfig:"DYNAMODB_BASE_URL" required:"false" default:""`
-	DynamoDBTable       string `envconfig:"DYNAMODB_TABLE" required:"false" default:"ScanResults"`
+	QueueURL              string `envconfig:"QUEUE_URL" required:"true"`
+	Region                string `envconfig:"REGION" required:"true" default:"ap-northeast-1"`
+	MaxNumberOfMessages   int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
+	WaitTimeSeconds       int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
+	BaseUrl               string `envconfig:"BASE_URL" required:"false" default:""`
+	S3BaseUrl             string `envconfig:"S3_BASE_URL" required:"false" default:""`
+	DynamoDBBaseUrl       string `envconfig:"DYNAMODB_BASE_URL" required:"false" default:""`
+	DynamoDBTable         string `envconfig:"DYNAMODB_TABLE" required:"false" default:"ScanResults"`
+	DynamoDBTableInfected string `envconfig:"DYNAMODB_TABLE_INFECTED" required:"false" default:"InfectedScanResults"`
 }
 
 var conf *Configuration
