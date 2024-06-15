@@ -1,6 +1,8 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"github.com/kelseyhightower/envconfig"
+)
 
 type Configuration struct {
 	QueueURL            string `envconfig:"QUEUE_URL" required:"true"`
@@ -9,6 +11,8 @@ type Configuration struct {
 	WaitTimeSeconds     int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
 	BaseUrl             string `envconfig:"BASE_URL" required:"false" default:""`
 	S3BaseUrl           string `envconfig:"S3_BASE_URL" required:"false" default:""`
+	DynamoDBBaseUrl     string `envconfig:"DYNAMODB_BASE_URL" required:"false" default:""`
+	DynamoDBTable       string `envconfig:"DYNAMODB_TABLE" required:"false" default:"ScanResults"`
 }
 
 var conf *Configuration
