@@ -42,6 +42,11 @@ func TestClient_ManipulateObject(t *testing.T) {
 	})
 
 	t.Run("DeleteObject", func(t *testing.T) {
-		t.Skip("Skip DeleteObject test")
+		s3Object := clients.S3Object{
+			Bucket: "test",
+			Key:    "test",
+		}
+		err = client.DeleteObject(ctx, s3Object)
+		assert.Nil(t, err)
 	})
 }
