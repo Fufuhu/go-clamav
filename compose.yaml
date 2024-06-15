@@ -65,6 +65,29 @@ services:
       - 8001:8001
     depends_on:
       - dynamodb
+  aws-cli:
+    image: public.ecr.aws/aws-cli/aws-cli
+    environment:
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=miniominio
+      - AWS_DEFAULT_REGION=ap-northeast-1
+    command:
+      - --endpoint-url
+      - http://dynamodb:8000
+      - dynamodb
+      - create-table
+      - --table-name
+      - ScanResults
+      - --attribute-definitions
+      - AttributeName=ObjectPath,AttributeType=S
+      - AttributeName=TimeStamp,AttributeType=S
+      - --key-schema
+      - AttributeName=ObjectPath,KeyType=HASH
+      - AttributeName=TimeStamp,KeyType=RANGE
+      - --table-class
+      - STANDARD
+      - --provisioned-throughput
+      - ReadCapacityUnits=5,WriteCapacityUnits=5
 volumes:
   signatures:
   minio-data:
