@@ -34,6 +34,23 @@ func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clie
 	return nil
 }
 
+// DeleteObject DeleteObject関数はS3オブジェクトを削除する
+func (c *Client) DeleteObject(ctx context.Context, s3Object clients.S3Object) error {
+	logger := logging.GetLogger()
+	defer logger.Sync()
+
+	_, err := c.service.DeleteObject(ctx, &awsS3.DeleteObjectInput{
+		Bucket: aws.String(s3Object.Bucket),
+		Key:    aws.String(s3Object.Key),
+	})
+	if err != nil {
+		logger.Warn("S3オブジェクトの削除に失敗しました")
+		logger.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
 // NewClient NewClient関数はS3クライアントを生成する
 func NewClient(conf config.Configuration, ctx context.Context) (*Client, error) {
 	logger := logging.GetLogger()
