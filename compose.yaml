@@ -80,14 +80,17 @@ services:
       - ScanResults
       - --attribute-definitions
       - AttributeName=ObjectPath,AttributeType=S
-      - AttributeName=TimeStamp,AttributeType=S
+      - AttributeName=Status,AttributeType=S
+      - AttributeName=ScannedAt,AttributeType=S
       - --key-schema
       - AttributeName=ObjectPath,KeyType=HASH
-      - AttributeName=TimeStamp,KeyType=RANGE
+      - AttributeName=Status,KeyType=RANGE
       - --table-class
       - STANDARD
       - --provisioned-throughput
       - ReadCapacityUnits=5,WriteCapacityUnits=5
+      - --global-secondary-indexes
+      - IndexName=DatetimeIndex,KeySchema=[{AttributeName=ScannedAt,KeyType=HASH}],Projection={ProjectionType=ALL},ProvisionedThroughput={ReadCapacityUnits=5,WriteCapacityUnits=5}
 volumes:
   signatures:
   minio-data:
