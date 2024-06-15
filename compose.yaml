@@ -80,11 +80,37 @@ services:
       - ScanResults
       - --attribute-definitions
       - AttributeName=ObjectPath,AttributeType=S
-      - AttributeName=Status,AttributeType=S
+      # - AttributeName=Status,AttributeType=S
       - AttributeName=ScannedAt,AttributeType=S
       - --key-schema
       - AttributeName=ObjectPath,KeyType=HASH
-      - AttributeName=Status,KeyType=RANGE
+      # - AttributeName=Status,KeyType=RANGE
+      - --table-class
+      - STANDARD
+      - --provisioned-throughput
+      - ReadCapacityUnits=5,WriteCapacityUnits=5
+      - --global-secondary-indexes
+      - IndexName=DatetimeIndex,KeySchema=[{AttributeName=ScannedAt,KeyType=HASH}],Projection={ProjectionType=ALL},ProvisionedThroughput={ReadCapacityUnits=5,WriteCapacityUnits=5}
+  aws-cli2:
+    image: public.ecr.aws/aws-cli/aws-cli
+    environment:
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=miniominio
+      - AWS_DEFAULT_REGION=ap-northeast-1
+    command:
+      - --endpoint-url
+      - http://dynamodb:8000
+      - dynamodb
+      - create-table
+      - --table-name
+      - InfectedScanResults
+      - --attribute-definitions
+      - AttributeName=ObjectPath,AttributeType=S
+      # - AttributeName=Status,AttributeType=S
+      - AttributeName=ScannedAt,AttributeType=S
+      - --key-schema
+      - AttributeName=ObjectPath,KeyType=HASH
+      # - AttributeName=Status,KeyType=RANGE
       - --table-class
       - STANDARD
       - --provisioned-throughput
