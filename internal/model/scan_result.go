@@ -9,5 +9,5 @@ type ScanResult struct {
 	ScannedAt  string `json:"scanned_at"`
 }
 
-const ScanResultInfection = "infected"
+const ScanResultInfected = "infected"
 const ScanResultClean = "clean"
