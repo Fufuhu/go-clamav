@@ -10,6 +10,7 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	awsSqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"go.uber.org/zap"
+	"time"
 )
 
 type Client struct {
@@ -17,7 +18,7 @@ type Client struct {
 	service *awsSqs.Client
 }
 
-// Poll SQSにポーリングする
+// Poll SQSにポーリングする。processには、S3Objectをどう処理するかを表す関数を渡す
 func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error) error {
 	logger := logging.GetLogger()
 	defer func(logger *zap.Logger) {
@@ -42,6 +43,8 @@ func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error)
 				continue
 			}
 		}
+
+		time.Sleep(5 * time.Second)
 	}
 }
 

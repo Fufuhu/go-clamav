@@ -1,9 +1,12 @@
 package poll
 
 import (
-	"fmt"
+	"context"
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/cmd"
+	"github.com/Fufuhu/go-clamav/internal/logging"
+	"github.com/Fufuhu/go-clamav/internal/queue/clients"
+	"github.com/Fufuhu/go-clamav/internal/queue/clients/sqs"
 	"github.com/spf13/cobra"
 )
 
@@ -11,19 +14,33 @@ type CommandPoll struct {
 }
 
 func (p *CommandPoll) Run(cmd *cobra.Command, args []string) {
-	fmt.Println("poll called")
+	logger := logging.GetLogger()
+	defer logger.Sync()
 
-	// SQSからメッセージを取得する
+	ctx := context.Background()
+	cfg, err := config.GetConfig()
+	if err != nil {
+		logger.Error("設定ファイルの読み込みに失敗しました")
+		logger.Error(err.Error())
+		panic(err)
+	}
 
-	// SQSから取得したメッセージをパースする
-
-	// S3からファイルを取得する
-
-	// ファイルをスキャンする
-
-	// スキャン結果をDynamoDBに保存する
-
-	// SQSからメッセージを削除する
+	sqsClient, err := sqs.NewClient(*cfg, ctx)
+	if err != nil {
+		logger.Error("SQSクライアントの作成に失敗しました")
+		logger.Error(err.Error())
+		panic(err)
+	}
+	// エラーは拾ったところでどうにもならないのでpanicする
+	err = sqsClient.Poll(ctx, func(object clients.S3Object) error {
+		// TODO 取得したS3オブジェクトを処理するための関数を準備する
+		return nil
+	})
+	if err != nil {
+		logger.Error("SQSのポーリングに失敗しました")
+		logger.Error(err.Error())
+		panic(err)
+	}
 }
 
 func NewCommand(cfg config.Configuration) cmd.CommandInterface {
