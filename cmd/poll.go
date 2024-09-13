@@ -4,8 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/Fufuhu/go-clamav/config"
+	"github.com/Fufuhu/go-clamav/internal/cmd/poll"
+	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +21,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("poll called")
+		logger := logging.GetLogger()
+		defer logger.Sync()
+		cfg, err := config.GetConfig()
+		if err != nil {
+			logger.Error("設定ファイルの読み込みに失敗しました")
+			logger.Error(err.Error())
+			panic(err)
+		}
+		command := poll.NewCommand(*cfg)
+		command.Run(cmd, args)
 	},
 }
 
