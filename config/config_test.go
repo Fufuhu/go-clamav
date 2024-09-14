@@ -18,6 +18,8 @@ func TestGetConfig(t *testing.T) {
 	assert.Equal(t, DefaultRegion, config.Region)
 	assert.Equal(t, DefaultMaxNumberOfMessages, config.MaxNumberOfMessages)
 	assert.Equal(t, DefaultWaitTimeSeconds, config.WaitTimeSeconds)
+	assert.Equal(t, DefaultClamdHost, config.ClamdHost)
+	assert.Equal(t, DefaultClamdPort, config.ClamdPort)
 }
 
 // TestInitialize Initialize関数にてconf変数がnilになることを確認するテスト

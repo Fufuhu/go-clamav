@@ -14,6 +14,8 @@ type Configuration struct {
 	DynamoDBBaseUrl       string `envconfig:"DYNAMODB_BASE_URL" required:"false" default:""`
 	DynamoDBTable         string `envconfig:"DYNAMODB_TABLE" required:"false" default:"ScanResults"`
 	DynamoDBTableInfected string `envconfig:"DYNAMODB_TABLE_INFECTED" required:"false" default:"InfectedScanResults"`
+	ClamdHost             string `envconfig:"CLAMD_HOST" required:"false" default:"localhost"`
+	ClamdPort             int32  `envconfig:"CLAMD_PORT" required:"false" default:"3310"`
 }
 
 var conf *Configuration
@@ -21,6 +23,8 @@ var conf *Configuration
 const DefaultRegion = "ap-northeast-1"
 const DefaultMaxNumberOfMessages = int32(1)
 const DefaultWaitTimeSeconds = int32(20)
+const DefaultClamdHost = "localhost"
+const DefaultClamdPort = int32(3310)
 
 // Initialize Initialize関数はconf変数を初期化する
 // 環境変数を変更したあとにプロセスを再起動することなしに設定を再取得したい場合などに利用する
