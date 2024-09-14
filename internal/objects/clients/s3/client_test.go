@@ -32,7 +32,7 @@ func TestClient_ManipulateObject(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 
-	s3Object := clients.S3Object{
+	s3Object := clients.QueueMessage{
 		Bucket: "test",
 		Key:    "test",
 	}

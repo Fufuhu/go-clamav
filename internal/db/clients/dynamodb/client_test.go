@@ -24,7 +24,7 @@ func TestPutScanResult(t *testing.T) {
 	t.Run("clean", func(t *testing.T) {
 
 		result := &model.ScanResult{
-			S3Object: clients.S3Object{
+			QueueMessage: clients.QueueMessage{
 				Bucket: "test-bucket",
 				Key:    "test-key-clean",
 			},
@@ -40,7 +40,7 @@ func TestPutScanResult(t *testing.T) {
 	t.Run("infected", func(t *testing.T) {
 
 		result := &model.ScanResult{
-			S3Object: clients.S3Object{
+			QueueMessage: clients.QueueMessage{
 				Bucket: "test-bucket",
 				Key:    "test-key-infected",
 			},

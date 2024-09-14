@@ -32,7 +32,7 @@ func (p *CommandPoll) Run(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 	// エラーは拾ったところでどうにもならないのでpanicする
-	err = sqsClient.Poll(ctx, func(object clients.S3Object) error {
+	err = sqsClient.Poll(ctx, func(object clients.QueueMessageInterface) error {
 		// TODO 取得したS3オブジェクトを処理するための関数を準備する
 		return nil
 	})

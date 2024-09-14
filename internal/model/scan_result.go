@@ -3,7 +3,7 @@ package model
 import "github.com/Fufuhu/go-clamav/internal/queue/clients"
 
 type ScanResult struct {
-	clients.S3Object
+	clients.QueueMessage
 
 	ScanResult string `json:"scan_result"`
 	ScannedAt  string `json:"scanned_at"`

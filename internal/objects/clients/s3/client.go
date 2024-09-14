@@ -20,7 +20,7 @@ type Client struct {
 }
 
 // PutObject PutObject関数はS3オブジェクトをアップロードする
-func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clients.S3Object) error {
+func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clients.QueueMessage) error {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
@@ -38,7 +38,7 @@ func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clie
 }
 
 // DeleteObject DeleteObject関数はS3オブジェクトを削除する
-func (c *Client) DeleteObject(ctx context.Context, s3Object clients.S3Object) error {
+func (c *Client) DeleteObject(ctx context.Context, s3Object clients.QueueMessage) error {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
@@ -55,7 +55,7 @@ func (c *Client) DeleteObject(ctx context.Context, s3Object clients.S3Object) er
 }
 
 // GetObject GetObject関数はS3オブジェクトを取得する
-func (c *Client) GetObject(ctx context.Context, s3Object clients.S3Object) (io.ReadCloser, error) {
+func (c *Client) GetObject(ctx context.Context, s3Object clients.QueueMessage) (io.ReadCloser, error) {
 	// 本当なら取得したオブジェクトのボディを[]byteで取りたいが、メモリ上にすべて展開するのは安全ではないので
 	// io.ReadCloserを渡すようにしている
 	logger := logging.GetLogger()
