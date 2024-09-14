@@ -77,6 +77,11 @@ func TestClient_ReceiveMessages(t *testing.T) {
 	messages, err := client.ReceiveMessages(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(messages))
-	assert.Equal(t, "hane.jpg", messages[0].Key)
-	assert.Equal(t, "20220807-sqs-test", messages[0].Bucket)
+	assert.Equal(t, "hane.jpg", messages[0].GetKey())
+	assert.Equal(t, "20220807-sqs-test", messages[0].GetBucket())
+
+	for _, m := range messages {
+		err = m.DeleteMessage(ctx, client)
+		assert.Nil(t, err)
+	}
 }

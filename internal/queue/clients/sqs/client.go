@@ -19,7 +19,7 @@ type Client struct {
 }
 
 // Poll SQSにポーリングする。processには、S3Objectをどう処理するかを表す関数を渡す
-func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error) error {
+func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInterface) error) error {
 	logger := logging.GetLogger()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -29,16 +29,18 @@ func (c *Client) Poll(ctx context.Context, process func(clients.S3Object) error)
 	}(logger)
 
 	for {
-		s3Objects, err := c.ReceiveMessages(ctx)
+		messages, err := c.ReceiveMessages(ctx)
 		if err != nil {
 			logger.Warn("SQSのメッセージ取得に失敗しました")
 			logger.Error(err.Error())
 			continue
 		}
-		for _, s3Object := range s3Objects {
-			err = process(s3Object)
+		for _, message := range messages {
+			err = process(message)
 			if err != nil {
-				logger.Warn("S3から取得したオブジェクトの処理に失敗しました")
+				logger.Warn("S3から取得したオブジェクトの処理に失敗しました",
+					zap.String("Bucket", message.GetBucket()),
+					zap.String("Key", message.GetKey()))
 				logger.Error(err.Error())
 				continue
 			}
@@ -62,7 +64,7 @@ type S3Event struct {
 }
 
 // ReceiveMessages キューからメッセージを取得する
-func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.S3Object, error) {
+func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.QueueMessageInterface, error) {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
@@ -77,10 +79,10 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.S3Object, error
 	if err != nil {
 		logger.Warn("SQSキューからのメッセージの取得に失敗しました")
 		logger.Error(err.Error())
-		return []clients.S3Object{}, err
+		return []clients.QueueMessageInterface{}, err
 	}
 
-	var s3Objects []clients.S3Object
+	var s3Objects []clients.QueueMessageInterface
 	for _, message := range result.Messages {
 		logger.Info("SQSメッセージを処理中です",
 			zap.String("MessageID", *message.MessageId),
@@ -96,9 +98,11 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.S3Object, error
 
 		// eventのRecordsからイベント情報を取り出してQueueMessageのフォーマットにして格納する
 		for _, record := range event.Records {
-			s3Objects = append(s3Objects, clients.S3Object{
-				Bucket: record.S3.Bucket.Name,
-				Key:    record.S3.Object.Key,
+
+			s3Objects = append(s3Objects, &clients.QueueMessage{
+				Bucket:        record.S3.Bucket.Name,
+				Key:           record.S3.Object.Key,
+				ReceiptHandle: *message.ReceiptHandle,
 			})
 		}
 
@@ -143,6 +147,28 @@ func (c *Client) SendMessage(ctx context.Context, message string) (*string, erro
 		zap.String("MessageID", *sendMessageOutput.MessageId))
 
 	return sendMessageOutput.MessageId, err
+}
+
+func (c *Client) DeleteMessage(ctx context.Context, receiptHandle string) error {
+	logger := logging.GetLogger()
+	defer logger.Sync()
+
+	deleteMessageInput := &awsSqs.DeleteMessageInput{
+		QueueUrl:      aws.String(c.conf.QueueURL),
+		ReceiptHandle: aws.String(receiptHandle),
+	}
+
+	_, err := c.service.DeleteMessage(ctx, deleteMessageInput)
+	if err != nil {
+		logger.Warn("SQSメッセージの削除に失敗しました",
+			zap.String("ReceiptHandle", receiptHandle))
+		logger.Error(err.Error())
+		return err
+	}
+	logger.Info("SQSメッセージを削除しました",
+		zap.String("ReceiptHandle", receiptHandle))
+
+	return nil
 }
 
 func NewClient(conf config.Configuration, ctx context.Context) (*Client, error) {

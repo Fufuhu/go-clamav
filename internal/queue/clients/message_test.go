@@ -6,8 +6,8 @@ import (
 )
 
 // TestS3Object_GetObjectPath GetObjectPath関数にてS3ObjectのBucketとKeyを結合した文字列が返却されることを確認するテスト
-func TestS3Object_GetObjectPath(t *testing.T) {
-	s3Object := S3Object{
+func TestQueueMessage_GetObjectPath(t *testing.T) {
+	s3Object := QueueMessage{
 		Bucket: "test",
 		Key:    "object",
 	}
