@@ -55,28 +55,28 @@ func (c *Client) DeleteObject(ctx context.Context, s3Object clients.QueueMessage
 }
 
 // GetObject GetObject関数はS3オブジェクトを取得する
-func (c *Client) GetObject(ctx context.Context, s3Object clients.QueueMessage) (io.ReadCloser, error) {
+func (c *Client) GetObject(ctx context.Context, s3Object clients.QueueMessageInterface) (io.ReadCloser, error) {
 	// 本当なら取得したオブジェクトのボディを[]byteで取りたいが、メモリ上にすべて展開するのは安全ではないので
 	// io.ReadCloserを渡すようにしている
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
 	getObjectOutput, err := c.service.GetObject(ctx, &awsS3.GetObjectInput{
-		Bucket: aws.String(s3Object.Bucket),
-		Key:    aws.String(s3Object.Key),
+		Bucket: aws.String(s3Object.GetBucket()),
+		Key:    aws.String(s3Object.GetKey()),
 	})
 
 	if err != nil {
 		logger.Warn("S3オブジェクトの取得に失敗しました",
-			zap.String("bucket", s3Object.Bucket),
-			zap.String("key", s3Object.Key))
+			zap.String("bucket", s3Object.GetBucket()),
+			zap.String("key", s3Object.GetKey()))
 		return nil, err
 	}
 
 	if getObjectOutput == nil {
 		logger.Warn("S3オブジェクトが取得できません",
-			zap.String("bucket", s3Object.Bucket),
-			zap.String("key", s3Object.Key))
+			zap.String("bucket", s3Object.GetBucket()),
+			zap.String("key", s3Object.GetKey()))
 		return nil, errors.New("s3オブジェクトが取得できず、オブジェクトボディを返せません")
 	}
 

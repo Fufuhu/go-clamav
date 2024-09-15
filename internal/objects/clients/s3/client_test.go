@@ -43,7 +43,7 @@ func TestClient_ManipulateObject(t *testing.T) {
 	})
 
 	t.Run("GetObject", func(t *testing.T) {
-		reader, err := client.GetObject(ctx, s3Object)
+		reader, err := client.GetObject(ctx, &s3Object)
 		assert.Nil(t, err)
 		assert.NotNil(t, reader)
 		defer func(reader io.ReadCloser) {
