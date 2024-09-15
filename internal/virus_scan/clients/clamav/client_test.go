@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -37,6 +38,10 @@ func (m MockReader) Read(buf []byte) (n int, err error) {
 	return 0, nil
 }
 
+type InfectedMockReader struct {
+	Count int
+}
+
 func TestClient_Scan(t *testing.T) {
 	conf, err := config.GetConfig()
 	assert.Nil(t, err)
@@ -51,6 +56,17 @@ func TestClient_Scan(t *testing.T) {
 
 		// テスト用のバイト列を作成
 		result, err := client.Scan(mockReader)
+		assert.Nil(t, err)
+		assert.NotNil(t, result)
+		fmt.Println(result)
+	})
+
+	t.Run("EICAR感染ファイル", func(t *testing.T) {
+		eicar, err := os.Open("eicar.txt")
+		assert.Nil(t, err)
+		assert.NotNil(t, eicar)
+
+		result, err := client.Scan(eicar)
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
 		fmt.Println(result)

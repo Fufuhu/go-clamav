@@ -53,32 +53,34 @@ func (c *Client) Scan(reader io.Reader) (Result, error) {
 	// バイト列を読み込んでclamdに送信する
 	for {
 		n, err := reader.Read(buf)
-		if n == 0 {
+		logger.Info(fmt.Sprintf("Read %d bytes", n))
+		if n <= 0 {
 			break
 		}
-		if n > 0 {
-			// チャンクサイズの送信
-			size := uint32(n)
-			sizeBuf := new(bytes.Buffer)
-			if err := binary.Write(sizeBuf, binary.BigEndian, size); err != nil {
-				logger.Error("チャンクサイズのバイト列の作成に失敗しました")
-				logger.Error(err.Error())
-				return Result{}, err
-			}
 
-			// チャンクデータの送信
-			_, err = conn.Write(buf[:n])
-			if err != nil {
-				logger.Error("チャンクデータの送信に失敗しました")
-				logger.Error(err.Error())
-				return Result{}, err
-			}
+		// チャンクサイズの送信
+		size := uint32(n)
+		sizeBuf := new(bytes.Buffer)
+		if err := binary.Write(sizeBuf, binary.BigEndian, size); err != nil {
+			logger.Error(fmt.Sprintf("チャンクサイズ(%d byte)のバイト列の作成に失敗しました", int32(n)))
+			logger.Error(err.Error())
+			return Result{}, err
+		} else {
+			logger.Info(fmt.Sprintf("チャンクサイズ(%d byte)のバイト列の作成に成功しました", int32(n)))
 		}
-		if err == io.EOF {
-			break
+
+		if _, err := conn.Write(sizeBuf.Bytes()); err != nil {
+			logger.Error("チャンクサイズの送信に失敗しました")
+			logger.Error(err.Error())
+			return Result{}, err
+		} else {
+			logger.Info(fmt.Sprintf("チャンクサイズ(%d byte)の送信に成功しました", int32(n)))
 		}
+
+		// チャンクデータの送信
+		_, err = conn.Write(buf[:n])
 		if err != nil {
-			logger.Error("バイト列の読み込みに失敗しました")
+			logger.Error("チャンクデータの送信に失敗しました")
 			logger.Error(err.Error())
 			return Result{}, err
 		}
