@@ -58,7 +58,7 @@ func TestClient_Scan(t *testing.T) {
 		result, err := client.Scan(mockReader)
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
-		assert.Equal(t, "stream: OK\n", result.Message)
+		assert.Equal(t, ResultOK, result.Message)
 		fmt.Println(result)
 	})
 
@@ -70,7 +70,7 @@ func TestClient_Scan(t *testing.T) {
 		result, err := client.Scan(eicar)
 		assert.Nil(t, err)
 		assert.NotNil(t, result)
-		assert.Equal(t, "stream: Win.Test.EICAR_HDB-1 FOUND\n", result.Message)
+		assert.Equal(t, ResultEicarInfected, result.Message)
 		fmt.Println(result)
 	})
 

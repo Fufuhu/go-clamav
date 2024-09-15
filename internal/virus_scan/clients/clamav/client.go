@@ -15,6 +15,8 @@ type Client struct {
 }
 
 const InstreamCommand = "nINSTREAM\n"
+const ResultOK = "stream: OK\n"
+const ResultEicarInfected = "stream: Win.Test.EICAR_HDB-1 FOUND\n"
 
 // GetAddress GetAddress関数はClamdのアドレスを取得する
 func (c *Client) GetAddress() string {
