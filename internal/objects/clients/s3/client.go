@@ -20,13 +20,13 @@ type Client struct {
 }
 
 // PutObject PutObject関数はS3オブジェクトをアップロードする
-func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clients.QueueMessage) error {
+func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clients.QueueMessageInterface) error {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
 	_, err := c.service.PutObject(ctx, &awsS3.PutObjectInput{
-		Bucket: aws.String(s3Object.Bucket),
-		Key:    aws.String(s3Object.Key),
+		Bucket: aws.String(s3Object.GetBucket()),
+		Key:    aws.String(s3Object.GetKey()),
 		Body:   bytes.NewReader(objectBody),
 	})
 	if err != nil {

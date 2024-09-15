@@ -38,7 +38,7 @@ func TestClient_ManipulateObject(t *testing.T) {
 	}
 	t.Run("PutObject", func(t *testing.T) {
 		objectBody := []byte("test")
-		err = client.PutObject(ctx, objectBody, s3Object)
+		err = client.PutObject(ctx, objectBody, &s3Object)
 		assert.Nil(t, err)
 	})
 
