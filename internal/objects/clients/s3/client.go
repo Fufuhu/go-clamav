@@ -38,13 +38,13 @@ func (c *Client) PutObject(ctx context.Context, objectBody []byte, s3Object clie
 }
 
 // DeleteObject DeleteObject関数はS3オブジェクトを削除する
-func (c *Client) DeleteObject(ctx context.Context, s3Object clients.QueueMessage) error {
+func (c *Client) DeleteObject(ctx context.Context, s3Object clients.QueueMessageInterface) error {
 	logger := logging.GetLogger()
 	defer logger.Sync()
 
 	_, err := c.service.DeleteObject(ctx, &awsS3.DeleteObjectInput{
-		Bucket: aws.String(s3Object.Bucket),
-		Key:    aws.String(s3Object.Key),
+		Bucket: aws.String(s3Object.GetBucket()),
+		Key:    aws.String(s3Object.GetKey()),
 	})
 	if err != nil {
 		logger.Warn("S3オブジェクトの削除に失敗しました")

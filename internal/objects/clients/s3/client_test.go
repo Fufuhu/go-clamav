@@ -59,7 +59,7 @@ func TestClient_ManipulateObject(t *testing.T) {
 	})
 
 	t.Run("DeleteObject", func(t *testing.T) {
-		err = client.DeleteObject(ctx, s3Object)
+		err = client.DeleteObject(ctx, &s3Object)
 		assert.Nil(t, err)
 	})
 }
