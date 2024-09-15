@@ -4,6 +4,7 @@ import (
 	"github.com/Fufuhu/go-clamav/internal/db/clients/dynamodb"
 	"github.com/Fufuhu/go-clamav/internal/model"
 	"github.com/Fufuhu/go-clamav/internal/objects/clients/s3"
+	"github.com/Fufuhu/go-clamav/internal/queue/clients"
 	"github.com/Fufuhu/go-clamav/internal/virus_scan/clients/clamav"
 )
 
@@ -15,6 +16,10 @@ type Scanner struct {
 
 func (s *Scanner) Scan() (model.ScanResult, error) {
 	return model.ScanResult{}, nil
+}
+
+func (s *Scanner) Process(message clients.QueueMessageInterface) error {
+	return nil
 }
 
 func NewScanner(dynamodbClient *dynamodb.Client, s3Client *s3.Client, clamdClient *clamav.Client) Scanner {
