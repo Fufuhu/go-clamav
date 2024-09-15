@@ -19,7 +19,7 @@ type Client struct {
 }
 
 // Poll SQSにポーリングする。processには、S3Objectをどう処理するかを表す関数を渡す
-func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInterface) error) error {
+func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInterface, context.Context) error) error {
 	logger := logging.GetLogger()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -36,7 +36,7 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 			continue
 		}
 		for _, message := range messages {
-			err = process(message)
+			err = process(message, ctx)
 			if err != nil {
 				logger.Warn("SQSのメッセージ処理に失敗しました",
 					zap.String("Bucket", message.GetBucket()),

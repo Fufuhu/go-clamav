@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"github.com/Fufuhu/go-clamav/internal/db/clients/dynamodb"
 	"github.com/Fufuhu/go-clamav/internal/model"
 	"github.com/Fufuhu/go-clamav/internal/objects/clients/s3"
@@ -18,7 +19,7 @@ func (s *Scanner) Scan() (model.ScanResult, error) {
 	return model.ScanResult{}, nil
 }
 
-func (s *Scanner) Process(message clients.QueueMessageInterface) error {
+func (s *Scanner) Process(message clients.QueueMessageInterface, ctx context.Context) error {
 	return nil
 }
 
