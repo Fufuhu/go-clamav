@@ -38,9 +38,17 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 		for _, message := range messages {
 			err = process(message)
 			if err != nil {
-				logger.Warn("S3から取得したオブジェクトの処理に失敗しました",
+				logger.Warn("SQSのメッセージ処理に失敗しました",
 					zap.String("Bucket", message.GetBucket()),
 					zap.String("Key", message.GetKey()))
+				logger.Error(err.Error())
+				continue
+			}
+
+			// SQSのメッセージ処理に成功したらメッセージを削除する
+			if err = c.DeleteMessage(ctx, message.GetReceiptHandle()); err != nil {
+				logger.Warn("SQSメッセージの削除に失敗しました",
+					zap.String("ReceiptHandle", message.GetReceiptHandle()))
 				logger.Error(err.Error())
 				continue
 			}
