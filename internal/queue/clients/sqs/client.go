@@ -3,6 +3,7 @@ package sqs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/queue/clients"
@@ -35,7 +36,9 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 			logger.Error(err.Error())
 			continue
 		}
+		logger.Info(fmt.Sprintf("%d個のメッセージを取得しました", len(messages)))
 		for _, message := range messages {
+			logger.Info("個別メッセージの処理を開始します")
 			err = process(message, ctx)
 			if err != nil {
 				logger.Warn("SQSのメッセージ処理に失敗しました",
@@ -52,6 +55,7 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 				logger.Error(err.Error())
 				continue
 			}
+			logger.Info("SQSメッセージの削除が完了しました")
 		}
 
 		time.Sleep(5 * time.Second)
@@ -82,6 +86,8 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.QueueMessageInt
 		WaitTimeSeconds:     c.conf.WaitTimeSeconds,
 	}
 
+	logger.Info("SQSキューからメッセージを取得します")
+
 	result, err := c.service.ReceiveMessage(ctx, receiveMessageInput)
 
 	if err != nil {
@@ -96,8 +102,8 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.QueueMessageInt
 			zap.String("MessageID", *message.MessageId),
 			zap.String("MessageBody", *message.Body))
 
-		var event = &S3Event{}
-		err = json.Unmarshal([]byte(*message.Body), event)
+		var event = S3Event{}
+		err = json.Unmarshal([]byte(*message.Body), &event)
 		if err != nil {
 			logger.Warn("SQSメッセージのjson.Unmarshalに失敗しました")
 			logger.Error(err.Error())
@@ -113,23 +119,6 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.QueueMessageInt
 				ReceiptHandle: *message.ReceiptHandle,
 			})
 		}
-
-		deleteMessageInput := &awsSqs.DeleteMessageInput{
-			QueueUrl:      aws.String(c.conf.QueueURL),
-			ReceiptHandle: message.ReceiptHandle,
-		}
-
-		_, err = c.service.DeleteMessage(ctx, deleteMessageInput)
-		if err != nil {
-			logger.Warn("SQSメッセージの削除に失敗しました",
-				zap.String("MessageID", *message.MessageId),
-				zap.String("ReceiptHandle", *message.ReceiptHandle))
-			logger.Error(err.Error())
-			continue
-		}
-		logger.Info("SQSメッセージを削除しました",
-			zap.String("MessageID", *message.MessageId),
-			zap.String("ReceiptHandle", *message.ReceiptHandle))
 	}
 
 	return s3Objects, nil
