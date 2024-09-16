@@ -71,6 +71,15 @@ func (s *Scanner) Process(message clients.QueueMessageInterface, ctx context.Con
 		scanResult.ScanResult = model.ScanResultInfected
 	}
 
+	_, err = s.dynamodbClient.PutScanResult(ctx, scanResult)
+	if err != nil {
+		logger.Error("スキャン結果の保存に失敗しました",
+			zap.String("Bucket", message.GetBucket()),
+			zap.String("Key", message.GetKey()))
+		logger.Error(err.Error())
+		return err
+	}
+
 	return nil
 }
 
