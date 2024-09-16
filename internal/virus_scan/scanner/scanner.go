@@ -41,6 +41,9 @@ func (s *Scanner) Process(message clients.QueueMessageInterface, ctx context.Con
 		}
 	}(file)
 
+	logger.Info("ファイルの取得に成功しました")
+	logger.Info("ファイルのスキャンを開始します")
+
 	result, err := s.clamdClient.Scan(file)
 	if err != nil {
 		logger.Warn("ファイルのスキャンに失敗しました")
