@@ -9,6 +9,7 @@ type Configuration struct {
 	Region                string `envconfig:"REGION" required:"true" default:"ap-northeast-1"`
 	MaxNumberOfMessages   int32  `envconfig:"MAX_NUMBER_OF_MESSAGES" required:"true" default:"1"`
 	WaitTimeSeconds       int32  `envconfig:"WAIT_TIME_SECONDS" required:"true" default:"20"`
+	VisibilityTimeout     int32  `envconfig:"VISIBILITY_TIMEOUT" required:"true" default:"30"`
 	BaseUrl               string `envconfig:"BASE_URL" required:"false" default:""`
 	S3BaseUrl             string `envconfig:"S3_BASE_URL" required:"false" default:""`
 	DynamoDBBaseUrl       string `envconfig:"DYNAMODB_BASE_URL" required:"false" default:""`

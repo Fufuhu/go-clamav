@@ -84,6 +84,7 @@ func (c *Client) ReceiveMessages(ctx context.Context) ([]clients.QueueMessageInt
 		QueueUrl:            aws.String(c.conf.QueueURL),
 		MaxNumberOfMessages: c.conf.MaxNumberOfMessages,
 		WaitTimeSeconds:     c.conf.WaitTimeSeconds,
+		VisibilityTimeout:   c.conf.VisibilityTimeout,
 	}
 
 	logger.Info("SQSキューからメッセージを取得します")
