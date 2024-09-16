@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/queue/clients"
@@ -80,6 +81,10 @@ func (c *Client) GetObject(ctx context.Context, s3Object clients.QueueMessageInt
 		return nil, errors.New("s3オブジェクトが取得できず、オブジェクトボディを返せません")
 	}
 
+	logger.Info("S3オブジェクトを取得しました",
+		zap.String("bucket", s3Object.GetBucket()),
+		zap.String("key", s3Object.GetKey()))
+
 	return getObjectOutput.Body, nil
 }
 
@@ -89,15 +94,28 @@ func NewClient(conf config.Configuration, ctx context.Context) (*Client, error) 
 	defer logger.Sync()
 
 	cfg, err := awsConfig.LoadDefaultConfig(ctx, awsConfig.WithRegion(conf.Region))
+
+	var svc *awsS3.Client
+
 	if err != nil {
 		logger.Warn("AWS S3クライアントの設定作成に失敗しました")
 	}
 	if conf.S3BaseUrl != "" {
+		logger.Info("S3のカスタムエンドポイントを設定します", zap.String("S3BaseUrl", conf.S3BaseUrl))
+		logger.Info("S3 Base URLを設定します", zap.String("S3BaseUrl", conf.S3BaseUrl))
 		cfg.BaseEndpoint = aws.String(conf.S3BaseUrl)
+		svc = awsS3.NewFromConfig(cfg, func(o *awsS3.Options) {
+			o.BaseEndpoint = aws.String(conf.S3BaseUrl)
+			o.UsePathStyle = true
+		})
+		logger.Info(fmt.Sprintf("s3クライアントのエンドポイントは、%sです", *cfg.BaseEndpoint))
+	} else {
+		svc = awsS3.NewFromConfig(cfg)
 	}
+	logger.Info(fmt.Sprintf("クライアントのリージョンは、%sです", cfg.Region))
 
 	return &Client{
 		conf:    conf,
-		service: awsS3.NewFromConfig(cfg),
+		service: svc,
 	}, nil
 }
