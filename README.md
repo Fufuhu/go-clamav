@@ -40,7 +40,6 @@ aws sqs send-message --queue-url http://localhost:9324/000000000000/queue1 \
 ```
 
 ```
-```
 aws sqs send-message --queue-url http://localhost:9324/000000000000/queue1 \
  --endpoint-url http://localhost:9324 \
  --message-body '{"Records": [{
