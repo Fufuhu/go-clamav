@@ -1,0 +1,36 @@
+name: Build and Push
+on:
+  workflow_dispatch:
+    inputs:
+      build_target:
+        description: Tag name or branch name to deploy e.g. main, develop, v1.0.0 etc.
+        default: main
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  build-and-push-container:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.build_target }}
+      - name: Login to Dockerhub
+        id: login-dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Get image tag
+        id: get-image-tag
+        run: |
+          SHORT_COMMIT_ID=`git rev-parse --short HEAD`
+          REF=`echo ${{ github.event.inputs.build_target }} | sed  -e 's/\//-/g'`
+          echo "image-tag=${REF}-${SHORT_COMMIT_ID}" >> $GITHUB_OUTPUT
+      - name: Build and push container image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: fufuhu/go-clamav:${{ steps.get-image-tag.outputs.image-tag }}
