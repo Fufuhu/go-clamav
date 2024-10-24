@@ -93,6 +93,25 @@ go-clamavを動かすためには、`config/config.go`に記載されている�
 
 なお、`AWS_ACCESS_KEY_ID`および`AWS_SECRET_ACCESS_KEY`は、compose.yaml利用時には、minioのブラウザUI(`http://localhost:9001`)にアクセスする際のID/PASSの情報となります。
 
+### ローカルでの各種UIへのアクセス
+ブラウザで以下のURLにアクセスすることで、各種UIにアクセスできます。
+- minio: `http://localhost:9000`
+- ElasticMQ: `http://localhost:9325`
+- DynamoDB Admin: `http://localhost:8001`
+
+### ローカルでのメインプロセスの起動
+上記のdocker composeでgo-clamavの動作に必要な関連コンテナを起動した状態で、以下のコマンドを実行します。
+メインプロセスを起動した状態で、事項のキュー操作を行うとスキャンが実行されます。
+
+```bash
+# ビルド
+# goenvなどでgo.mod記載のバージョンに合わせてください
+$ go build
+
+# 実行
+$ ./exec_local.sh
+```
+
 ## compose.yaml利用時のキューの操作
 
 あらかじめminioのテストバケットにファイルをアップロードしておくと、go-clamavの動作確認が可能です。
@@ -182,7 +201,7 @@ aws sqs send-message --queue-url http://localhost:9324/000000000000/queue1 \
           "ownerIdentity": {
             "principalId": "A2B5KBXGR14B9R"
           },
-          "arn": "arn:aws:s3:::20220807-sqs-test"
+          "arn": "arn:aws:s3:::test"
         },
         "object": {
           "key": "test.txt",

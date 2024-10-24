@@ -71,6 +71,8 @@ services:
       - AWS_ACCESS_KEY_ID=minio
       - AWS_SECRET_ACCESS_KEY=miniominio
       - AWS_DEFAULT_REGION=ap-northeast-1
+    depends_on:
+      - dynamodb
     command:
       - --endpoint-url
       - http://dynamodb:8000
@@ -97,6 +99,8 @@ services:
       - AWS_ACCESS_KEY_ID=minio
       - AWS_SECRET_ACCESS_KEY=miniominio
       - AWS_DEFAULT_REGION=ap-northeast-1
+    depends_on:
+      - dynamodb
     command:
       - --endpoint-url
       - http://dynamodb:8000
