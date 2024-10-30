@@ -12,6 +12,9 @@
 以下コマンドにて、Dockerイメージをビルドし、ECRなどにプッシュします。
 ```bash
 $ docker build  .
+
+# M1以降のMacなど, arm64環境の場合は以下のようにビルドします
+$ docker build --platform linux/amd64 .
 ```
 
 ### 2. タスク定期の設定

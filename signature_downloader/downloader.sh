@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Start ClamAV signatures uploaded to S3."
+
 # ClamAVデータベースのダウンロード
 freshclam --datadir=/tmp/clamdb
 
