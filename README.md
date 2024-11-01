@@ -47,7 +47,7 @@ go-clamavを動かすためには、`config/config.go`に記載されている�
 + QUEUE_URL
   + SQSキューのURL、ローカル開発の場合は、ElasticMQのキューURLを指定します。
   + compose.yamlを利用しているの場合は、`http://localhost:9324/000000000000/queue1` を指定します。
-+ Region
++ REGION
   + 各種リソースが配置されているリージョンを指定します。
   + デフォルトでは、東京リージョン(`ap-northeast-1`)を指定します。
 + MAX_NUMBER_OF_MESSAGES
@@ -60,7 +60,7 @@ go-clamavを動かすためには、`config/config.go`に記載されている�
 + WAIT_TIME_SECONDS
   + ロングポーリングを行う際の待機時間を指定します。
   + デフォルトでは20秒となっています。
-+ BaseUrl
++ BASE_URL
   + SQSキューにアクセスする際のエンドポイントを指定します。
   + ローカル開発の際に、ElasticMQのエンドポイントを指定するための環境変数です。
   + compose.yamlを利用しているの場合は、`http://localhost:9324` を指定します。
@@ -70,7 +70,7 @@ go-clamavを動かすためには、`config/config.go`に記載されている�
 + DYNAMODB_TABLE_INFECTED
   + ウイルス検出されたファイルの情報を保存するDynamoDBテーブル名を指定します。
   + デフォルトでは、`InfectedScanResults` となっています。
-+ DynamoDBBaseUrl
++ DYNAMODB_BASE_URL
   + DynamoDBにアクセスする際のエンドポイントを指定します。
   + ローカル開発の際に、DynamoDB Localのエンドポイントを指定するための環境変数です。
   + compose.yamlを利用しているの場合は、`http://localhost:8000` を指定します。
