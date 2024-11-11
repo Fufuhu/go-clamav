@@ -11,8 +11,9 @@ services:
     build:
       context: freshclam
       dockerfile: Dockerfile
-    # environment:
-    #   - FRESHCLAM_INTERVAL=60
+    environment:
+      - DATABASE_MIRROR=database.clamav.net
+      # - FRESHCLAM_INTERVAL = 3600
     volumes:
       - signatures:/var/lib/clamav
     depends_on:

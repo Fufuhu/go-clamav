@@ -55,7 +55,7 @@ func (c *Client) Scan(reader io.Reader) (Result, error) {
 	// バイト列を読み込んでclamdに送信する
 	for {
 		n, err := reader.Read(buf)
-		logger.Info(fmt.Sprintf("Read %d bytes", n))
+		logger.Debug(fmt.Sprintf("Read %d bytes", n))
 		if n <= 0 {
 			break
 		}
@@ -68,7 +68,7 @@ func (c *Client) Scan(reader io.Reader) (Result, error) {
 			logger.Error(err.Error())
 			return Result{}, err
 		} else {
-			logger.Info(fmt.Sprintf("チャンクサイズ(%d byte)のバイト列の作成に成功しました", int32(n)))
+			logger.Debug(fmt.Sprintf("チャンクサイズ(%d byte)のバイト列の作成に成功しました", int32(n)))
 		}
 
 		if _, err := conn.Write(sizeBuf.Bytes()); err != nil {
@@ -76,7 +76,7 @@ func (c *Client) Scan(reader io.Reader) (Result, error) {
 			logger.Error(err.Error())
 			return Result{}, err
 		} else {
-			logger.Info(fmt.Sprintf("チャンクサイズ(%d byte)の送信に成功しました", int32(n)))
+			logger.Debug(fmt.Sprintf("チャンクサイズ(%d byte)の送信に成功しました", int32(n)))
 		}
 
 		// チャンクデータの送信

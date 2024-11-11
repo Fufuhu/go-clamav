@@ -11,6 +11,10 @@ RUN rm -rf /var/log/clamav/* && \
     rm -f /etc/clamav/clamd.conf && \
     mkdir /var/run/clamav && \
     chown clamav:clamav /var/run/clamav
+
 COPY conf.d/clamav.conf.template /etc/clamav/clamd.conf.template
+COPY src/run.sh /usr/local/bin/run.sh
+RUN chmod +x /usr/local/bin/run.sh
+
 ENV CLAMD_LISTENING_PORT=3310
-CMD envsubst < /etc/clamav/clamd.conf.template > /etc/clamav/clamd.conf && clamd
+CMD envsubst < /etc/clamav/clamd.conf.template > /etc/clamav/clamd.conf && run.sh

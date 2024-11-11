@@ -18,5 +18,5 @@ ScriptedUpdates yes
 CompressLocalDatabase no
 Bytecode true
 Checks 24
-DatabaseMirror https://database.clamav.net
+DatabaseMirror $DATABASE_MIRROR
 DNSDatabaseInfo no
