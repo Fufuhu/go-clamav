@@ -1,6 +1,6 @@
 # freshclamがデータベースをダウンロードするまで待機
 retry_count=0
-while [ ! -f /var/lib/clamav/main.cvd ] || [ ! -f /var/lib/clamav/daily.cvd ] || [ ! -f /var/lib/clamav/bytecode.cvd ]; do
+while [ ! -f /var/lib/clamav/main.* ] || [ ! -f /var/lib/clamav/daily.* ] || [ ! -f /var/lib/clamav/bytecode.* ]; do
   echo "Waiting for freshclam to download all database files..."
   sleep 10
   retry_count=$((retry_count + 1))
