@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/queue/clients"
@@ -11,7 +12,6 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	awsSqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Client struct {
@@ -20,7 +20,7 @@ type Client struct {
 }
 
 // Poll SQSにポーリングする。processには、S3Objectをどう処理するかを表す関数を渡す
-func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInterface, context.Context) error) error {
+func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInterface, config.Configuration, context.Context) error) error {
 	logger := logging.GetLogger()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -39,7 +39,7 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 		logger.Info(fmt.Sprintf("%d個のメッセージを取得しました", len(messages)))
 		for _, message := range messages {
 			logger.Info("個別メッセージの処理を開始します")
-			err = process(message, ctx)
+			err = process(message, c.conf, ctx)
 			if err != nil {
 				logger.Warn("SQSのメッセージ処理に失敗しました",
 					zap.String("Bucket", message.GetBucket()),
@@ -57,8 +57,6 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 			}
 			logger.Info("SQSメッセージの削除が完了しました")
 		}
-
-		time.Sleep(5 * time.Second)
 	}
 }
 

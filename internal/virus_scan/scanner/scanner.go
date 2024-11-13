@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"time"
+	"github.com/Fufuhu/go-clamav/config"
 )
 
 type Scanner struct {
@@ -23,9 +24,21 @@ func (s *Scanner) Scan() (model.ScanResult, error) {
 	return model.ScanResult{}, nil
 }
 
-func (s *Scanner) Process(message clients.QueueMessageInterface, ctx context.Context) error {
+func (s *Scanner) Process(message clients.QueueMessageInterface, conf config.Configuration, ctx context.Context) error {
 	logger := logging.GetLogger()
 	defer logger.Sync()
+
+	// 対象外ファイルをスキップ
+	if ok, err := message.IsTargetFile(conf); err != nil {
+		logger.Warn("ファイルの対象外判定に失敗しました")
+		logger.Error(err.Error())
+		return err
+	} else if !ok {
+		logger.Info("ファイルが対象外のためスキップします",
+			zap.String("Bucket", message.GetBucket()),
+			zap.String("Key", message.GetKey()))
+		return nil
+	}
 
 	file, err := s.s3Client.GetObject(ctx, message)
 	if err != nil {
