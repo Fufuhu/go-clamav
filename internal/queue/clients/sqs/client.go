@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/queue/clients"
@@ -11,7 +12,6 @@ import (
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	awsSqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Client struct {
@@ -57,8 +57,6 @@ func (c *Client) Poll(ctx context.Context, process func(clients.QueueMessageInte
 			}
 			logger.Info("SQSメッセージの削除が完了しました")
 		}
-
-		time.Sleep(5 * time.Second)
 	}
 }
 
