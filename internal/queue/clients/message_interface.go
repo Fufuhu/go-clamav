@@ -1,6 +1,9 @@
 package clients
 
-import "context"
+import (
+	"context"
+	"github.com/Fufuhu/go-clamav/config"
+)
 
 type QueueMessageInterface interface {
 	DeleteMessage(ctx context.Context, client ClientInterface) error
@@ -10,4 +13,5 @@ type QueueMessageInterface interface {
 	SetBucket(bucket string)
 	GetKey() string
 	SetKey(key string)
+	IsTargetFile(conf config.Configuration) (bool, error)
 }

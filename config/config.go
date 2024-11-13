@@ -17,6 +17,7 @@ type Configuration struct {
 	DynamoDBTableInfected string `envconfig:"DYNAMODB_TABLE_INFECTED" required:"false" default:"InfectedScanResults"`
 	ClamdHost             string `envconfig:"CLAMD_HOST" required:"false" default:"localhost"`
 	ClamdPort             int32  `envconfig:"CLAMD_PORT" required:"false" default:"3310"`
+	ScanningTargetFilePatterns string `envconfig:"SCANNING_TARGET_FILE_PATTERNS" required:"false" default:""`
 }
 
 var conf *Configuration
