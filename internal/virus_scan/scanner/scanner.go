@@ -2,6 +2,10 @@ package scanner
 
 import (
 	"context"
+	"io"
+	"time"
+
+	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/db/clients/dynamodb"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/model"
@@ -9,9 +13,6 @@ import (
 	"github.com/Fufuhu/go-clamav/internal/queue/clients"
 	"github.com/Fufuhu/go-clamav/internal/virus_scan/clients/clamav"
 	"go.uber.org/zap"
-	"io"
-	"time"
-	"github.com/Fufuhu/go-clamav/config"
 )
 
 type Scanner struct {
@@ -75,6 +76,7 @@ func (s *Scanner) Process(message clients.QueueMessageInterface, conf config.Con
 			zap.String("Bucket", message.GetBucket()),
 			zap.String("Key", message.GetKey()))
 		scanResult.ScanResult = model.ScanResultClean
+		scanResult.Message = "-"
 	} else {
 		logger.Info("ファイルは感染しています",
 			zap.String("Bucket", message.GetBucket()),
@@ -82,6 +84,7 @@ func (s *Scanner) Process(message clients.QueueMessageInterface, conf config.Con
 			zap.String("Message", result.Message),
 		)
 		scanResult.ScanResult = model.ScanResultInfected
+		scanResult.Message = result.Message
 	}
 
 	_, err = s.dynamodbClient.PutScanResult(ctx, scanResult)

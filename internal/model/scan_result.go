@@ -7,6 +7,7 @@ type ScanResult struct {
 
 	ScanResult string `json:"scan_result"`
 	ScannedAt  string `json:"scanned_at"`
+	Message    string `json:"message"`
 }
 
 const ScanResultInfected = "infected"

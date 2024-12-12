@@ -2,6 +2,7 @@ package dynamodb
 
 import (
 	"context"
+
 	"github.com/Fufuhu/go-clamav/config"
 	"github.com/Fufuhu/go-clamav/internal/logging"
 	"github.com/Fufuhu/go-clamav/internal/model"
@@ -36,6 +37,10 @@ func (c *Client) PutScanResult(ctx context.Context, result *model.ScanResult) (*
 
 	item["ScannedAt"] = &types.AttributeValueMemberS{
 		Value: result.ScannedAt,
+	}
+
+	item["Message"] = &types.AttributeValueMemberS{
+		Value: result.Message,
 	}
 
 	_, err := c.service.PutItem(ctx, &awsDynamodb.PutItemInput{
