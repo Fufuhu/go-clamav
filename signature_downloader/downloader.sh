@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "Start ClamAV signatures uploaded to S3."
 
