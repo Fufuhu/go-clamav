@@ -13,4 +13,6 @@ RUN chmod +x /usr/local/bin/run.sh && \
     chmod 644 /etc/clamav/freshclam.conf && \
     chown 100:102 /var/lib/clamav 
 
-CMD envsubst < /etc/clamav/freshclam.conf.template > /etc/clamav/freshclam.conf && run.sh
+# read-only root filesystem 対応のため、設定ファイルの生成は run.sh 内で
+# 書き込み可能な /run/clamav に対して行う
+CMD ["run.sh"]
