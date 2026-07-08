@@ -1,10 +1,10 @@
 DatabaseOwner clamav
-UpdateLogFile /var/log/clamav/freshclam.log
+# read-only root filesystem 対応: read-only な /var/log/clamav にログファイルを書かず標準出力に出す
 LogVerbose false
 LogSyslog false
 LogFacility LOG_LOCAL6
 LogFileMaxSize 0
-LogRotate true
+LogRotate false
 LogTime true
 Foreground false
 Debug false

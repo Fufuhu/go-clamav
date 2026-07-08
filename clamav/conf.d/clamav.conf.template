@@ -4,10 +4,7 @@
 
 # Daemon setting
 Foreground true
-LocalSocket /var/run/clamav/clamd.ctl
-FixStaleSocket true
-LocalSocketGroup clamav
-LocalSocketMode 666
+# read-only root filesystem 対応: unix socket は本アプリ（TCP 接続）で未使用のため設定しない
 TCPAddr 0.0.0.0
 TCPSocket $CLAMD_LISTENING_PORT
 
@@ -37,6 +34,8 @@ LogFileMaxSize 0
 PreludeEnable no
 PreludeAnalyzerName ClamAV
 DatabaseDirectory /var/lib/clamav
+# read-only root filesystem 対応: スキャン一時ファイルを書き込み可能な DB ディレクトリに出す
+TemporaryDirectory /var/lib/clamav
 OfficialDatabaseOnly false
 SelfCheck 3600
 Debug false
