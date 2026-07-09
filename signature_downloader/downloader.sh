@@ -3,6 +3,12 @@ set -euo pipefail
 
 echo "Start ClamAV signatures uploaded to S3."
 
+# read-only root filesystem 対応:
+# /tmp/clamdb はボリュームをマウントすると所有者が root にリセットされ、
+# freshclam の DatabaseOwner(clamav) では書き込めなくなるため、起動時に作成・chown する
+mkdir -p /tmp/clamdb
+chown clamav:clamav /tmp/clamdb
+
 # ClamAVデータベースのダウンロード
 freshclam --datadir=/tmp/clamdb
 
