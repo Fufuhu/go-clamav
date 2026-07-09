@@ -1,3 +1,10 @@
+#!/bin/bash
+
+# read-only root filesystem 対応:
+# read-only な /etc/clamav ではなく、書き込み可能な DB ディレクトリ /var/lib/clamav に設定を生成する。
+# /var/lib/clamav は clamav が署名DBを持つため、どの実行基盤でも必ず書き込み可能なボリュームとして与えられる。
+envsubst < /etc/clamav/clamd.conf.template > /var/lib/clamav/clamd.conf
+
 # freshclamがデータベースをダウンロードするまで待機
 retry_count=0
 while [ ! -f /var/lib/clamav/main.* ] || [ ! -f /var/lib/clamav/daily.* ] || [ ! -f /var/lib/clamav/bytecode.* ]; do
@@ -12,4 +19,4 @@ done
 
 echo "All database files are ready. Starting clamd..."
 
-clamd # clamdを起動
+clamd -c /var/lib/clamav/clamd.conf # clamdを起動
